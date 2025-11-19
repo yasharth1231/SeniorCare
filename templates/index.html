@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+{% block title %}SeniorCare - Assistant App for Seniors{% endblock %}
+{% block content %}
+<section class="hero">
+    <div class="container">
+        <div class="hero-box">
+            <div class="hero-content">
+                <h1>Your Trusted Senior Assistant App</h1>
+                <p>Experience compassionate care tailored for seniors. From medication reminders to emergency support, we're here to make every day easier and safer.</p>
+                {% if not current_user.is_authenticated %}
+                <a href="{{ url_for('auth.login') }}" class="btn-primary">Login <i class="fas fa-chevron-right"></i></a>
+                <a href="{{ url_for('auth.register') }}" class="btn-secondary" style="margin-left: 10px;">Register</a>
+                {% else %}
+                <a href="{{ url_for('main.dashboard') }}" class="btn-primary">Go to Dashboard <i class="fas fa-chevron-right"></i></a>
+                {% endif %}
+            </div>
+            <div class="hero-image">
+                <img src="{{ url_for('static', filename='images/sc2.jpg') }}" alt="Happy elderly couple">
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="feature-cards-section">
+    <div class="container">
+        <div class="cards-grid">
+
+            <div class="card card-online-appoint">
+                <div class="card-icon">
+                    <i class="fas fa-mobile-alt"></i>
+                </div>
+                <h4>24/7 Assistance</h4>
+                <h3>App Features</h3>
+                <p>Access medication reminders, daily health tracking, and virtual consultations anytime. Designed with large fonts and voice commands for ease of use.</p>
+                {% if not current_user.is_authenticated %}
+                <a href="{{ url_for('auth.register') }}" class="btn-secondary">Get Started</a>
+                {% else %}
+                <a href="{{ url_for('main.dashboard') }}" class="btn-secondary">Dashboard</a>
+                {% endif %}
+            </div>
+
+            <div class="card card-working-hours">
+                <div class="card-icon">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <h4>Support Schedule</h4>
+                <h3>Availability</h3>
+                <ul class="timing-list">
+                    <li><span>Mon - Fri :</span> <span>8:00 AM - 8:00 PM</span></li>
+                    <li><span>Sat - Sun :</span> <span>9:00 AM - 6:00 PM</span></li>
+                    <li><span>Emergency :</span> <span>24/7</span></li>
+                </ul>
+            </div>
+
+            <div class="card card-emergency">
+                <div class="card-icon">
+                    <i class="fas fa-phone"></i>
+                </div>
+                <h4>Emergency Help</h4>
+                <span class="emergency-number">1-800-700-6200</span>
+                <p>One-tap emergency alerts for falls, medical issues, or family check-ins. Connect instantly with caregivers and loved ones for peace of mind.</p>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+<div class="scroll-top" id="scrollTopButtons">
+    <div class="scroll-btn"><i class="fas fa-arrow-up"></i></div>
+    <div class="scroll-btn"><i class="fas fa-arrow-up"></i></div>
+    <div class="scroll-btn"><i class="fas fa-arrow-up"></i></div>
+</div>
+
+<script>
+    // --- SCROLL-TO-TOP BUTTON LOGIC ---
+    const scrollTopButtons = document.getElementById('scrollTopButtons');
+    const scrollThreshold = 300; // Show buttons after scrolling 300px
+
+    // Function to handle the scroll event
+    function handleScroll() {
+        if (window.scrollY > scrollThreshold) {
+            scrollTopButtons.style.display = 'block';
+        } else {
+            scrollTopButtons.style.display = 'none';
+        }
+    }
+
+    // Function to scroll to the top smoothly
+    function scrollToTop() {
+        window.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+        });
+    }
+
+    // Attach the scroll handler to the window
+    window.addEventListener('scroll', handleScroll);
+
+    // Attach the smooth scroll function to all buttons
+    document.querySelectorAll('.scroll-btn').forEach(button => {
+        button.addEventListener('click', scrollToTop);
+    });
+
+    // Initial check in case the page is loaded below the threshold
+    handleScroll();
+</script>
+{% endblock %}

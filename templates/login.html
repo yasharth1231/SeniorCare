@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SeniorCare - Login</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+  <style>
+    :root {
+      --primary-blue: #1E3A8A; /* Deep Navy Blue (Trust, Stability) */
+      --accent-red: #FF7043; /* Soft Coral/Red (Action, Urgency) */
+      --background-light: #F9FAFB; /* Off-white/Light Gray */
+      --text-dark: #333333;
+      --header-gradient: linear-gradient(90deg, #1E3A8A 0%, #004D40 100%); /* Blue/Teal Gradient */
+      --link-bg: #8cadda; /* Light Blue for Quick Links */
+      --bg-dark: #e0e0e0; /* Slightly darker background for form container */
+      --border-color: #e9ecef;
+      --font-family-sans: 'Roboto', 'Arial', sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body, html {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      font-family: var(--font-family-sans);
+      background-color: var(--background-light);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .form-container {
+      background: var(--bg-dark);
+      padding: 40px;
+      border-radius: 15px;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+      width: 100%;
+      max-width: 380px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .form-container .logo {
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 20px;
+      color: var(--primary-blue);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .form-container .logo i {
+      margin-right: 8px;
+      color: var(--accent-red);
+    }
+
+    h2 {
+      margin-bottom: 25px;
+      font-weight: 600;
+      color: var(--text-dark);
+    }
+
+    form {
+      width: 100%;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+      text-align: left;
+    }
+
+    .form-group label {
+      display: block;
+      font-weight: 500;
+      margin-bottom: 5px;
+      color: var(--text-dark);
+    }
+
+    .form-group input, .form-group select {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      outline: none;
+      font-size: 1rem;
+      transition: border 0.3s;
+    }
+
+    .form-group input:focus, .form-group select:focus {
+      border-color: var(--primary-blue);
+    }
+
+    .btn-login {
+      width: 100%;
+      padding: 14px;
+      background: var(--primary-blue);
+      border: none;
+      border-radius: 10px;
+      color: white;
+      font-size: 1.1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .btn-login:hover {
+      background: #142e70;
+    }
+
+    .extra-links {
+      margin-top: 15px;
+      font-size: 0.9rem;
+      color: #666;
+      text-align: center;
+    }
+
+    .extra-links a {
+      color: var(--primary-blue);
+      margin: 0 5px;
+      font-weight: 500;
+      text-decoration: none;
+    }
+
+    .extra-links a:hover {
+      color: var(--accent-red);
+      text-decoration: underline;
+    }
+
+    .error {
+      color: var(--accent-red);
+      font-size: 0.85rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="form-container">
+    <div class="logo">
+      <i class="fas fa-heart"></i> SeniorCare
+    </div>
+    <h2>Login</h2>
+    <form method="POST" action="{{ url_for('auth.login') }}">
+      {{ form.hidden_tag() }}
+      <div class="form-group">
+        <label for="email"><i class="fas fa-envelope"></i> {{ form.email.label.text }}</label>
+        {{ form.email(size=32, class="form-control") }}<br>
+        {% for error in form.email.errors %}
+          <span class="error">{{ error }}</span>
+        {% endfor %}
+      </div>
+      <div class="form-group">
+        <label for="password"><i class="fas fa-lock"></i> {{ form.password.label.text }}</label>
+        {{ form.password(size=32, class="form-control") }}<br>
+        {% for error in form.password.errors %}
+          <span class="error">{{ error }}</span>
+        {% endfor %}
+      </div>
+      <div class="form-group">
+        <label for="role"><i class="fas fa-user"></i> {{ form.role.label.text }}</label>
+        {{ form.role() }}<br>
+        {% for error in form.role.errors %}
+          <span class="error">{{ error }}</span>
+        {% endfor %}
+      </div>
+      <div class="form-group">
+        {{ form.remember_me() }} {{ form.remember_me.label }}
+      </div>
+      <button type="submit" class="btn-login">{{ form.submit.label.text }}</button>
+      <div class="extra-links">
+        <a href="#">Forgot Password?</a> |
+        <a href="{{ url_for('auth.register') }}">Register</a>
+      </div>
+    </form>
+  </div>
+</body>
+</html>

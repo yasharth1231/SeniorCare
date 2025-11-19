@@ -1,0 +1,355 @@
+{% extends "base.html" %}
+{% block title %}Senior Dashboard{% endblock %}
+{% block content %}
+<style>
+    :root {
+        --primary-blue: #1E3A8A; /* Deep Navy Blue (Trust, Stability) */
+        --accent-red: #FF7043; /* Soft Coral/Red (Action, Urgency) */
+        --background-light: #F9FAFB; /* Off-white/Light Gray */
+        --text-dark: #333333;
+        --header-gradient: linear-gradient(90deg, #1E3A8A 0%, #004D40 100%); /* Blue/Teal Gradient */
+        --link-bg: #8cadda; /* Light Blue for Quick Links */
+    }
+
+    * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+        font-family: 'Roboto', 'Arial', sans-serif;
+    }
+
+    body {
+        background-color: var(--background-light);
+        color: var(--text-dark);
+        line-height: 1.6;
+        min-height: 100vh;
+    }
+
+    /* --- Main Dashboard Layout --- */
+    .dashboard-container {
+        max-width: 1300px;
+        margin: 30px auto;
+        padding: 0 20px;
+    }
+
+    /* 1. Welcome and Primary Actions */
+    .action-center {
+        display: flex;
+        align-items: center;
+        margin-bottom: 30px;
+    }
+
+    .welcome-message {
+        font-size: 40px;
+        font-weight: 300;
+        color: var(--text-dark);
+        margin-right: 50px;
+    }
+
+    .primary-actions {
+        display: flex;
+        gap: 20px;
+    }
+
+    .action-btn {
+        color: white;
+        font-size: 20px;
+        font-weight: 700;
+        padding: 20px 30px;
+        border: none;
+        border-radius: 12px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        transition: transform 0.2s;
+        min-width: 200px;
+        justify-content: center;
+    }
+
+    .action-btn:hover {
+        transform: translateY(-2px);
+    }
+
+    .sos-btn {
+        background-color: var(--accent-red);
+    }
+
+    .voice-btn {
+        background-color: var(--primary-blue);
+    }
+
+    .action-btn i {
+        font-size: 24px;
+    }
+
+    /* 2. Content Grid */
+    .content-grid {
+        display: grid;
+        grid-template-columns: 3fr 1fr; /* Two main columns */
+        gap: 30px;
+    }
+
+    .card {
+        background-color: white;
+        padding: 20px;
+        border-radius: 12px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        margin-bottom: 20px;
+    }
+
+    .card h3 {
+        font-size: 20px;
+        font-weight: 600;
+        color: var(--primary-blue);
+        margin-bottom: 15px;
+    }
+
+    /* Tables */
+    .data-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 16px;
+    }
+
+    .data-table th, .data-table td {
+        padding: 12px 10px;
+        text-align: left;
+        border-bottom: 1px solid #eee;
+    }
+
+    .data-table th {
+        background-color: #f4f4f4;
+        font-weight: 600;
+        color: var(--primary-blue);
+    }
+
+    .data-table tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+    /* Notifications Card Specifics */
+    .notification-card {
+        padding-top: 15px;
+    }
+
+    .sound-toggle {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 16px;
+        font-weight: 500;
+        margin-bottom: 10px;
+    }
+
+    .toggle-switch {
+        width: 40px;
+        height: 20px;
+        background-color: var(--primary-blue); /* ON state color */
+        border-radius: 10px;
+        position: relative;
+        cursor: pointer;
+    }
+
+    .toggle-switch::after {
+        content: '';
+        position: absolute;
+        top: 2px;
+        left: 2px;
+        width: 16px;
+        height: 16px;
+        background-color: white;
+        border-radius: 50%;
+        transition: 0.3s;
+        /* This button is shown as 'ON' in the image */
+    }
+
+    .small-table th:nth-child(2), .small-table td:nth-child(2) {
+        width: 35%; /* Adjust width for Title column */
+    }
+
+    /* Right Panel - Quick Links */
+    .right-panel {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .quick-link-btn {
+        background-color: var(--link-bg);
+        color: var(--primary-blue);
+        font-size: 18px;
+        font-weight: 600;
+        padding: 20px;
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        text-align: left;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        transition: background-color 0.2s;
+    }
+
+    .quick-link-btn:hover {
+        background-color: #719cd6;
+    }
+
+    .quick-link-btn i {
+        font-size: 24px;
+    }
+</style>
+
+<main class="dashboard-container">
+    <section class="action-center">
+        <h2 class="welcome-message">Welcome, {{ current_user.username }}!</h2>
+        <div class="primary-actions">
+            <button class="action-btn sos-btn" onclick="triggerSOS()">
+                <i class="fas fa-bell"></i>
+                SOS
+            </button>
+            <button class="action-btn voice-btn" onclick="startVoice()">
+                <i class="fas fa-microphone"></i>
+                VOICE ASSISTANT
+            </button>
+        </div>
+    </section>
+
+    <section class="content-grid">
+        <div class="left-panel">
+            <div class="card reminder-card">
+                <h3>Upcoming Reminders</h3>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Title</th>
+                            <th>Scheduled Time</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for reminder in reminders %}
+                            <tr>
+                                <td>{{ reminder.title }}</td>
+                                <td>{{ reminder.scheduled_time.strftime('%Y-%m-%d %I:%M %p') }}</td>
+                                <td>
+                                    {% if reminder.is_taken %}
+                                        Taken
+                                    {% else %}
+                                        Not Taken
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <form method="POST" action="{{ url_for('main.mark_reminder_taken', id=reminder.id) }}" style="display:inline;">
+                                        <select name="status">
+                                            <option value="taken" {% if reminder.is_taken %}selected{% endif %}>Taken</option>
+                                            <option value="not_taken" {% if not reminder.is_taken %}selected{% endif %}>Not Taken</option>
+                                        </select>
+                                        <button type="submit">Update</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        {% if not reminders %}
+                            <tr><td colspan="4">No upcoming reminders.</td></tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="card notification-card">
+                <h3>Reminder Notifications</h3>
+                <div class="sound-toggle">
+                    <i class="fas fa-volume-up"></i>
+                    <span>SOUND ON</span>
+                    <div class="toggle-switch" id="toggleSound"></div>
+                </div>
+                <table class="data-table small-table">
+                    <thead>
+                        <tr>
+                            <th>Type</th>
+                            <th>Title</th>
+                            <th>Time</th>
+                        </tr>
+                    </thead>
+                    <tbody id="reminderList">
+                        <!-- Dynamic notifications will be added here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="right-panel">
+            <button class="quick-link-btn" onclick="window.location.href='{{ url_for('main.reminders') }}'">
+                <i class="fas fa-list-ul"></i>
+                View All Reminders
+            </button>
+            <button class="quick-link-btn" onclick="window.location.href='{{ url_for('main.health_log') }}'">
+                <i class="fas fa-chart-line"></i>
+                Log Health
+            </button>
+            <button class="quick-link-btn" onclick="window.location.href='{{ url_for('main.appointments') }}'">
+                <i class="fas fa-calendar-check"></i>
+                Appointments
+            </button>
+            <button class="quick-link-btn" onclick="window.location.href='{{ url_for('main.calendar') }}'">
+                <i class="fas fa-calendar-alt"></i>
+                Calendar
+            </button>
+        </div>
+    </section>
+</main>
+
+<script src="{{ url_for('static', filename='js/reminder_notifications.js') }}"></script>
+<script>
+function triggerSOS() {
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(function(position) {
+            const latitude = position.coords.latitude;
+            const longitude = position.coords.longitude;
+            fetch('/sos', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ latitude: latitude, longitude: longitude })
+            })
+            .then(response => response.json())
+            .then(data => alert(data.message))
+            .catch(error => alert('Failed to send SOS: ' + error.message));
+        }, function(error) {
+            alert('Unable to retrieve location. SOS sent without location.');
+            fetch('/sos', { method: 'POST' })
+                .then(response => response.json())
+                .then(data => alert(data.message));
+        });
+    } else {
+        alert('Geolocation is not supported by this browser.');
+        fetch('/sos', { method: 'POST' })
+            .then(response => response.json())
+            .then(data => alert(data.message));
+    }
+}
+
+function startVoice() {
+    // Simple voice input
+    const query = prompt("Speak your query:");
+    if (query) {
+        fetch('/voice', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ query: query })
+        })
+        .then(response => response.json())
+        .then(data => alert(data.response));
+    }
+}
+
+// Toggle sound functionality
+document.getElementById('toggleSound').addEventListener('click', function() {
+    this.classList.toggle('off');
+    // Add logic to toggle sound on/off
+});
+</script>
+{% endblock %}

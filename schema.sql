@@ -1,0 +1,102 @@
+-- Senior Citizen Assistant App Database Schema
+-- Use this script in MySQL Workbench to create the database
+
+CREATE DATABASE IF NOT EXISTS senior_assistant;
+USE senior_assistant;
+
+-- Users table with roles
+CREATE TABLE user (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(150) UNIQUE NOT NULL,
+    email VARCHAR(150) UNIQUE NOT NULL,
+    password_hash VARCHAR(128) NOT NULL,
+    role ENUM('senior', 'caregiver', 'family') NOT NULL,
+    phone VARCHAR(20),
+    caregiver_id INT,  -- For seniors and family, link to caregiver
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (caregiver_id) REFERENCES user(id)
+);
+
+-- Reminders table
+CREATE TABLE reminder (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    title VARCHAR(255) NOT NULL,
+    description TEXT,
+    reminder_type ENUM('medication', 'appointment', 'general') NOT NULL,
+    scheduled_time DATETIME NOT NULL,
+    is_taken BOOLEAN DEFAULT FALSE,
+    created_by INT,  -- Caregiver or self
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES user(id),
+    FOREIGN KEY (created_by) REFERENCES user(id)
+);
+
+-- Health Logs table
+CREATE TABLE health_log (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    bp_systolic INT,
+    bp_diastolic INT,
+    sugar_level FLOAT,
+    weight FLOAT,
+    heart_rate INT,
+    logged_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES user(id)
+);
+
+-- Appointments table
+CREATE TABLE appointment (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    doctor_name VARCHAR(255),
+    appointment_time DATETIME NOT NULL,
+    notes TEXT,
+    status ENUM('scheduled', 'completed', 'cancelled') DEFAULT 'scheduled',
+    created_by INT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES user(id),
+    FOREIGN KEY (created_by) REFERENCES user(id)
+);
+
+-- Emergency Logs table
+CREATE TABLE emergency_log (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    emergency_type VARCHAR(100),
+    message TEXT,
+    alerted_users TEXT,  -- JSON or comma-separated IDs
+    latitude FLOAT,
+    longitude FLOAT,
+    status ENUM('active', 'resolved') DEFAULT 'active',
+    triggered_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES user(id)
+);
+
+-- Calendar Events table
+CREATE TABLE calendar_event (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    title VARCHAR(255) NOT NULL,
+    description TEXT,
+    event_date DATE NOT NULL,
+    event_time TIME,
+    created_by INT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES user(id),
+    FOREIGN KEY (created_by) REFERENCES user(id)
+);
+
+-- Indexes for performance
+CREATE INDEX idx_user_role ON user(role);
+CREATE INDEX idx_reminder_user ON reminder(user_id);
+CREATE INDEX idx_reminder_time ON reminder(scheduled_time);
+CREATE INDEX idx_health_user ON health_log(user_id);
+CREATE INDEX idx_appointment_user ON appointment(user_id);
+CREATE INDEX idx_emergency_user ON emergency_log(user_id);
+CREATE INDEX idx_calendar_user ON calendar_event(user_id);
+
+-- If updating existing database, run these ALTER statements:
+ALTER TABLE emergency_log ADD COLUMN latitude FLOAT;
+ALTER TABLE emergency_log ADD COLUMN longitude FLOAT;
+ALTER TABLE emergency_log ADD COLUMN status ENUM('active', 'resolved') DEFAULT 'active';

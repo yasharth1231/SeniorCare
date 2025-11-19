@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block title %}Calendar{% endblock %}
+{% block content %}
+<div class="calendar">
+    <h2>Calendar</h2>
+    <form method="POST" action="{{ url_for('main.calendar') }}">
+        {{ form.hidden_tag() }}
+        <div class="form-group">
+            {{ form.title.label }}<br>
+            {{ form.title(size=40) }}<br>
+            {% for error in form.title.errors %}
+                <span class="error">{{ error }}</span>
+            {% endfor %}
+        </div>
+        <div class="form-group">
+            {{ form.description.label }}<br>
+            {{ form.description(rows=3, cols=40) }}<br>
+            {% for error in form.description.errors %}
+                <span class="error">{{ error }}</span>
+            {% endfor %}
+        </div>
+        <div class="form-group">
+            {{ form.event_date.label }}<br>
+            <input type="date" name="event_date" required><br>
+        </div>
+        <div class="form-group">
+            {{ form.event_time.label }}<br>
+            <input type="time" name="event_time"><br>
+        </div>
+        <div class="form-group">
+            {{ form.submit() }}
+        </div>
+    </form>
+    <h3>Upcoming Events</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Event Date</th>
+                <th>Event Time</th>
+                <th>Description</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for event in events %}
+                <tr>
+                    <td>{{ event.title }}</td>
+                    <td>{{ event.event_date }}</td>
+                    <td>{{ event.event_time or '' }}</td>
+                    <td>{{ event.description or '' }}</td>
+                </tr>
+            {% else %}
+                <tr>
+                    <td colspan="4">No events scheduled.</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

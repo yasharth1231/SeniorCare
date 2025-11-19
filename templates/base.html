@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}SeniorCare - Assistant App for Seniors{% endblock %}</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+    <style>
+        /* --- GLOBAL STYLES & RESET --- */
+        :root {
+            --primary-blue: #1E3A8A; /* Deep Navy Blue (Trust, Stability) */
+            --accent-red: #FF7043; /* Soft Coral/Red (Action, Urgency) */
+            --accent-purple: #5B3C7B; /* Darker accent for secondary CTA */
+            --background-light: #F3F9FF; /* Very Pale Blue/Teal for light background */
+            --text-dark: #333333;
+            --header-gradient: linear-gradient(90deg, #1E3A8A 0%, #004D40 100%); /* Blue/Teal Gradient */
+            --text-light: #6c757d;
+            --bg-white: #ffffff;
+            --border-color: #e9ecef;
+            --font-family-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: var(--font-family-sans);
+        }
+
+        body {
+            line-height: 1.6;
+            min-height: 100vh;
+            background-color: var(--background-light);
+            color: var(--text-dark);
+            position: relative;
+            z-index: 0;
+        }
+
+        a {
+            text-decoration: none;
+            color: var(--text-dark);
+            transition: color 0.3s;
+        }
+
+        a:hover {
+            color: var(--primary-blue);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 15px;
+        }
+
+        /* --- Header Styling --- */
+        .header-bar {
+            background: var(--header-gradient);
+            color: white;
+            padding: 15px 40px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1300px;
+            margin: 0 auto;
+        }
+
+        .logo-support {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+
+        .logo h1 {
+            font-size: 24px;
+            font-weight: 700;
+            margin-left: 8px;
+        }
+
+        .logo i {
+            font-size: 20px;
+            color: var(--accent-red); /* Accent color for the heart icon */
+        }
+
+        .support-info {
+            font-size: 12px;
+            opacity: 0.8;
+            display: flex;
+            flex-direction: column;
+            margin-left: 30px; /* Aligns roughly below the navigation */
+        }
+
+        .main-nav {
+            display: flex;
+            flex-grow: 1;
+            justify-content: center;
+            margin: 0 20px;
+        }
+
+        .main-nav a {
+            color: white;
+            text-decoration: none;
+            padding: 10px 15px;
+            font-size: 16px;
+            font-weight: 500;
+            transition: background-color 0.3s;
+            border-bottom: 3px solid transparent;
+        }
+
+        .main-nav a:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .main-nav .active-link {
+            border-bottom-color: var(--accent-red); /* Highlight active page */
+            font-weight: 700;
+        }
+
+        .call-info span {
+            font-size: 16px;
+            font-weight: 700;
+        }
+
+        /* --- MAIN CONTENT --- */
+        main {
+            padding: 20px 0;
+        }
+
+        .flash-messages {
+            background-color: var(--bg-white);
+            border: 1px solid var(--border-color);
+            padding: 10px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+        }
+
+        /* --- TABLES --- */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: var(--bg-white);
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        table thead {
+            background-color: var(--primary-blue);
+            color: var(--bg-white);
+        }
+
+        table th, table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        table tbody tr:hover {
+            background-color: var(--background-light);
+        }
+
+        /* --- FORMS --- */
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+
+        .btn-primary {
+            display: inline-block;
+            background-color: var(--primary-blue);
+            color: var(--bg-white);
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.3s;
+        }
+
+        .btn-primary:hover {
+            background-color: #2980b9;
+        }
+
+        /* --- CARDS --- */
+        .card {
+            background-color: var(--bg-white);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .card h3 {
+            margin-bottom: 10px;
+            color: var(--primary-blue);
+        }
+
+        /* --- Footer --- */
+        footer {
+            background-color: #e0e0e0;
+            color: var(--text-dark);
+            text-align: center;
+            padding: 10px 0;
+            font-size: 14px;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            z-index: 10;
+        }
+
+        main {
+            padding-bottom: 60px; /* Add padding to prevent overlap */
+        }
+
+        /* --- HERO SECTION (White box with content and image split) --- */
+        .hero {
+            background-color: var(--background-light);
+            padding: 60px 0;
+            display: flex;
+            align-items: center;
+            position: relative;
+        }
+
+        .hero-box {
+            display: flex;
+            align-items: center;
+            gap: 40px;
+            background-color: var(--bg-white);
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            max-width: 100%;
+        }
+
+        .hero-content {
+            flex: 1;
+            color: var(--text-dark);
+        }
+
+        .hero-content h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            line-height: 1.2;
+            color: var(--primary-blue);
+        }
+
+        .hero-content p {
+            font-size: 1.1rem;
+            line-height: 1.7;
+            margin-bottom: 30px;
+            color: var(--text-dark);
+        }
+
+        .hero-image {
+            flex: 1;
+            text-align: center;
+        }
+
+        .hero-image img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-secondary {
+            display: inline-block;
+            background-color: var(--accent-purple); /* Purple for secondary button */
+            color: var(--bg-white);
+            padding: 10px 20px;
+            text-transform: uppercase;
+            font-weight: 600;
+            font-size: 0.85rem;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-secondary:hover {
+            background-color: #4a2c5a; /* Darker purple on hover */
+        }
+
+        /* --- FEATURE CARDS SECTION (Updated to blue theme) --- */
+        .feature-cards-section {
+            margin-top: 50px; /* Position cards below the hero section with space */
+            position: relative;
+            z-index: 20;
+            padding: 50px 0; /* Add space above and below the cards */
+        }
+
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+        }
+
+        .card-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 60px;
+            height: 60px;
+            background-color: var(--background-light); /* Light background for the icon circle */
+            border-radius: 50%;
+            margin-bottom: 20px;
+        }
+
+        .card-icon i {
+            font-size: 2rem;
+            color: var(--primary-blue); /* Blue for card icons */
+        }
+
+        /* Specific card styles */
+        .card-online-appoint h4 {
+            color: var(--accent-purple); /* Purple for appointment card title */
+        }
+
+        .card-online-appoint .card-icon i {
+            color: var(--accent-purple); /* Purple for appointment icon */
+        }
+
+        .card-working-hours {
+            /* Specific style for the timing schedule card */
+            position: relative;
+        }
+
+        .card-working-hours .card-icon i {
+            color: var(--text-dark); /* Dark color for clock icon */
+        }
+
+        .timing-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .timing-list li {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px dashed var(--border-color);
+            font-size: 0.95rem;
+        }
+
+        .timing-list li:last-child {
+            border-bottom: none;
+        }
+
+        .timing-list span:first-child {
+            font-weight: 500;
+        }
+
+        .timing-list span:last-child {
+            color: var(--text-dark);
+        }
+
+        .card-emergency h4 {
+            color: var(--accent-red); /* Red tint for emergency title */
+            font-size: 1.4rem;
+        }
+
+        .card-emergency .card-icon i {
+             color: var(--accent-red); /* Red tint for emergency icon */
+        }
+
+        .emergency-number {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--accent-red); /* Red tint for emergency number */
+            margin: 10px 0 20px;
+            display: block;
+        }
+
+        /* --- SCROLL-TO-TOP BUTTONS (Blue theme with red tint option) --- */
+        .scroll-top {
+            position: fixed;
+            right: 20px;
+            bottom: 20px;
+            z-index: 1000;
+            display: none; /* Hidden by default, JS will show it */
+        }
+
+        .scroll-btn {
+            display: block;
+            width: 40px;
+            height: 40px;
+            margin-bottom: 10px;
+            background-color: var(--bg-white);
+            border: 1px solid var(--border-color);
+            border-radius: 50%;
+            text-align: center;
+            line-height: 40px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.3s, color 0.3s, transform 0.3s;
+            color: var(--text-light);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .scroll-btn i {
+            font-size: 0.8rem;
+        }
+
+        .scroll-btn:hover {
+            background-color: var(--primary-blue); /* Blue on hover */
+            color: var(--bg-white);
+        }
+
+        .scroll-btn:nth-child(3) {
+            /* The accent button at the bottom */
+            background-color: var(--accent-red); /* Red tint for the bottom button */
+            color: var(--bg-white);
+            border-color: var(--accent-red);
+        }
+
+        .scroll-btn:nth-child(3):hover {
+            background-color: #cf204d; /* Darker red tint on hover */
+        }
+
+        /* --- RESPONSIVENESS --- */
+        @media (max-width: 992px) {
+            .nav-menu {
+                display: none;
+            }
+
+            .hero-box {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .hero-content h1 {
+                font-size: 2.5rem;
+            }
+
+            .cards-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .feature-cards-section {
+                margin-top: 0;
+            }
+
+            .card {
+                min-height: auto;
+            }
+
+            .top-bar-complex {
+                flex-direction: column;
+                text-align: center;
+                gap: 10px;
+            }
+
+            .top-bar-left, .top-bar-right {
+                justify-content: center;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .top-bar-complex {
+                flex-direction: column;
+                text-align: center;
+                gap: 10px;
+            }
+
+            .top-bar-left, .top-bar-right {
+                justify-content: center;
+            }
+
+            .hero-content h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header-bar">
+        <div class="header-content">
+            <div class="logo-support">
+                <div class="logo">
+                    <i class="fas fa-heart"></i>
+                    <h1>SeniorCare</h1>
+                </div>
+                <div class="support-info">
+                    <span>support@seniorcare.app</span>
+                    <span>Senior Support Center, India</span>
+                </div>
+            </div>
+
+            <nav class="main-nav">
+                <a href="{{ url_for('main.index') }}">HOME</a>
+                {% if current_user.is_authenticated %}
+                    <a href="{{ url_for('main.dashboard') }}" class="active-link">DASHBOARD</a>
+                    <a href="{{ url_for('main.reminders') }}">REMINDERS</a>
+                    <a href="{{ url_for('main.health_log') }}">HEALTH</a>
+                    <a href="{{ url_for('main.appointments') }}">APPOINTMENTS</a>
+                    <a href="{{ url_for('main.calendar') }}">CALENDAR</a>
+                    <a href="{{ url_for('main.insights') }}">INSIGHTS</a>
+                    <a href="{{ url_for('auth.logout') }}">LOGOUT</a>
+                {% else %}
+                    <a href="{{ url_for('auth.login') }}">LOGIN</a>
+                    <a href="{{ url_for('auth.register') }}">REGISTER</a>
+                {% endif %}
+            </nav>
+            <div class="call-info">
+                <span>Call Now: 803-4560-15656</span>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <div class="container">
+            {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                    <div class="flash-messages">
+                        {% for message in messages %}
+                            <p>{{ message }}</p>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            {% endwith %}
+            {% block content %}{% endblock %}
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2023 SeniorCare - Assistant App for Seniors</p>
+    </footer>
+
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+</body>
+</html>

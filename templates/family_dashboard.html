@@ -1,0 +1,225 @@
+{% extends "base.html" %}
+{% block title %}Family Dashboard{% endblock %}
+{% block content %}
+<style>
+    :root {
+        --primary-blue: #1E3A8A; /* Deep Navy Blue (Trust, Stability) */
+        --accent-red: #FF7043; /* Soft Coral/Red (Action, Urgency) */
+        --background-light: #F9FAFB; /* Off-white/Light Gray */
+        --text-dark: #333333;
+        --header-gradient: linear-gradient(90deg, #1E3A8A 0%, #004D40 100%); /* Blue/Teal Gradient */
+        --link-bg: #8cadda; /* Light Blue for Quick Links */
+    }
+
+    * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+        font-family: 'Roboto', 'Arial', sans-serif;
+    }
+
+    body {
+        background-color: var(--background-light);
+        color: var(--text-dark);
+        line-height: 1.6;
+        min-height: 100vh;
+    }
+
+    /* --- Main Dashboard Layout --- */
+    .dashboard-container {
+        max-width: 1300px;
+        margin: 30px auto;
+        padding: 0 20px;
+    }
+
+    /* Family Status and Button Section */
+    .family-status {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 40px;
+        padding-bottom: 20px;
+        border-bottom: 1px solid #ddd;
+    }
+
+    .welcome-group h2 {
+        font-size: 30px;
+        font-weight: 300;
+        margin-bottom: 5px;
+    }
+
+    .senior-status {
+        font-size: 16px;
+        color: #666;
+        margin-top: 5px;
+    }
+
+    .add-senior-btn {
+        background-color: var(--primary-blue);
+        color: white;
+        padding: 12px 25px;
+        border: none;
+        border-radius: 8px;
+        font-size: 16px;
+        cursor: pointer;
+        transition: background-color 0.2s;
+        font-weight: 500;
+    }
+
+    .add-senior-btn:hover {
+        background-color: #142e70;
+    }
+
+    /* Seniors List Section */
+    .seniors-section {
+        margin-bottom: 40px;
+    }
+
+    .seniors-section h3 {
+        font-size: 24px;
+        font-weight: 600;
+        color: var(--primary-blue);
+        margin-bottom: 20px;
+    }
+
+    .seniors-list {
+        list-style: none;
+        padding: 0;
+    }
+
+    .senior-item {
+        background-color: white;
+        padding: 20px;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        margin-bottom: 15px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .senior-name {
+        font-size: 18px;
+        font-weight: 600;
+        color: var(--text-dark);
+    }
+
+    .senior-actions {
+        display: flex;
+        gap: 10px;
+    }
+
+    .action-btn {
+        background-color: var(--link-bg);
+        color: var(--primary-blue);
+        padding: 8px 16px;
+        border: none;
+        border-radius: 6px;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        text-decoration: none;
+        transition: background-color 0.2s;
+    }
+
+    .action-btn:hover {
+        background-color: #719cd6;
+    }
+
+    /* Emergency Alerts Section */
+    .alert-section h3 {
+        font-size: 24px;
+        font-weight: 600;
+        color: var(--primary-blue);
+        margin-bottom: 25px;
+    }
+
+    .alert-card {
+        background-color: white;
+        padding: 20px;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        margin-bottom: 30px;
+    }
+
+    .alert-text {
+        font-size: 18px;
+        font-weight: 500;
+        color: var(--accent-red);
+        margin-bottom: 15px;
+        border-bottom: 2px solid #f9f9f9;
+        padding-bottom: 10px;
+    }
+
+    .map-container {
+        height: 300px;
+        background-color: #f0f0f0;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        position: relative;
+        overflow: hidden;
+    }
+</style>
+
+<main class="dashboard-container">
+    <section class="family-status">
+        <div class="welcome-group">
+            <h2>Welcome, {{ current_user.username }}!</h2>
+            <p class="senior-status">Your Seniors Under Care</p>
+            {% if not seniors %}
+                <p>No seniors assigned yet</p>
+            {% endif %}
+        </div>
+        <a href="{{ url_for('main.family_add_user') }}" class="add-senior-btn">Add Senior or Family Member</a>
+    </section>
+
+    {% if seniors %}
+    <section class="seniors-section">
+        <h3>Your Seniors Under Care</h3>
+        <ul class="seniors-list">
+            {% for senior in seniors %}
+                <li class="senior-item">
+                    <span class="senior-name">{{ senior.username }}</span>
+                    <div class="senior-actions">
+                        <a href="{{ url_for('main.reminders', user_id=senior.id) }}" class="action-btn">Reminders</a>
+                        <a href="{{ url_for('main.health_log', user_id=senior.id) }}" class="action-btn">Health Logs</a>
+                        <a href="{{ url_for('main.appointments', user_id=senior.id) }}" class="action-btn">Appointments</a>
+                        <a href="{{ url_for('main.calendar', user_id=senior.id) }}" class="action-btn">Calendar</a>
+                    </div>
+                </li>
+            {% endfor %}
+        </ul>
+    </section>
+    {% endif %}
+
+    <section class="alert-section">
+        <h3>Active Emergency Alerts</h3>
+        {% for emergency in emergencies %}
+            <div class="alert-card">
+                <div class="alert-text">{{ emergency.user.username }} - {{ emergency.message }} at {{ emergency.triggered_at.strftime('%Y-%m-%d %H:%M') }}</div>
+                {% if emergency.latitude and emergency.longitude %}
+                    <div id="map-{{ emergency.id }}" class="map-container"></div>
+                {% endif %}
+            </div>
+        {% else %}
+            <div class="alert-card">
+                <div class="alert-text">No active emergencies.</div>
+            </div>
+        {% endfor %}
+    </section>
+</main>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    {% for emergency in emergencies %}
+        {% if emergency.latitude and emergency.longitude %}
+            var map_{{ emergency.id }} = L.map('map-{{ emergency.id }}').setView([{{ emergency.latitude }}, {{ emergency.longitude }}], 13);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            }).addTo(map_{{ emergency.id }});
+            L.marker([{{ emergency.latitude }}, {{ emergency.longitude }}]).addTo(map_{{ emergency.id }});
+        {% endif %}
+    {% endfor %}
+});
+</script>
+{% endblock %}

@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% block title %}Health Log{% endblock %}
+{% block content %}
+<div class="health-log">
+    <h2>Health Log</h2>
+    <form method="POST" action="{% if user_id %}{{ url_for('main.health_log', user_id=user_id) }}{% else %}{{ url_for('main.health_log') }}{% endif %}">
+        {{ form.hidden_tag() }}
+        <div class="form-group">
+            {{ form.bp_systolic.label }}<br>
+            {{ form.bp_systolic() }}<br>
+            {% for error in form.bp_systolic.errors %}
+                <span class="error">{{ error }}</span>
+            {% endfor %}
+        </div>
+        <div class="form-group">
+            {{ form.bp_diastolic.label }}<br>
+            {{ form.bp_diastolic() }}<br>
+            {% for error in form.bp_diastolic.errors %}
+                <span class="error">{{ error }}</span>
+            {% endfor %}
+        </div>
+        <div class="form-group">
+            {{ form.sugar_level.label }}<br>
+            {{ form.sugar_level() }}<br>
+            {% for error in form.sugar_level.errors %}
+                <span class="error">{{ error }}</span>
+            {% endfor %}
+        </div>
+        <div class="form-group">
+            {{ form.weight.label }}<br>
+            {{ form.weight() }}<br>
+            {% for error in form.weight.errors %}
+                <span class="error">{{ error }}</span>
+            {% endfor %}
+        </div>
+        <div class="form-group">
+            {{ form.heart_rate.label }}<br>
+            {{ form.heart_rate() }}<br>
+            {% for error in form.heart_rate.errors %}
+                <span class="error">{{ error }}</span>
+            {% endfor %}
+        </div>
+        <div class="form-group">
+            {{ form.submit() }}
+        </div>
+    </form>
+    <h3>Recent Health Logs</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>BP (Systolic/Diastolic)</th>
+                <th>Sugar Level</th>
+                <th>Weight (kg)</th>
+                <th>Heart Rate</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for log in logs %}
+                <tr>
+                    <td>{{ log.logged_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                    <td>{{ log.bp_systolic }}/{{ log.bp_diastolic }}</td>
+                    <td>{{ log.sugar_level }}</td>
+                    <td>{{ log.weight }}</td>
+                    <td>{{ log.heart_rate }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

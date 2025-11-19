@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% block title %}Reminders{% endblock %}
+{% block content %}
+<div class="reminders">
+    <h2>Reminders</h2>
+    <form method="POST" action="{% if user_id %}{{ url_for('main.reminders', user_id=user_id) }}{% else %}{{ url_for('main.reminders') }}{% endif %}">
+        {{ form.hidden_tag() }}
+        <div class="form-group">
+            {{ form.title.label }}<br>
+            {{ form.title(size=40) }}<br>
+            {% for error in form.title.errors %}
+                <span class="error">{{ error }}</span>
+            {% endfor %}
+        </div>
+        <div class="form-group">
+            {{ form.description.label }}<br>
+            {{ form.description(rows=3, cols=40) }}<br>
+            {% for error in form.description.errors %}
+                <span class="error">{{ error }}</span>
+            {% endfor %}
+        </div>
+        <div class="form-group">
+            {{ form.reminder_type.label }}<br>
+            {{ form.reminder_type() }}<br>
+            {% for error in form.reminder_type.errors %}
+                <span class="error">{{ error }}</span>
+            {% endfor %}
+        </div>
+        <div class="form-group">
+            {{ form.date.label }}<br>
+            <input type="date" name="date" required><br>
+        </div>
+        <div class="form-group">
+            {{ form.event_time.label }}<br>
+            <input type="time" name="event_time"><br>
+        </div>
+        <div class="form-group">
+            {{ form.submit() }}
+        </div>
+    </form>
+    <h3>Existing Reminders</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Scheduled Time</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for reminder in reminders %}
+                <tr>
+                    <td>{{ reminder.title }}</td>
+                    <td>{{ reminder.scheduled_time.strftime('%Y-%m-%d %I:%M %p') }}</td>
+                    <td>
+                        {% if reminder.is_taken %}
+                            Taken
+                        {% else %}
+                            Not Taken
+                        {% endif %}
+                    </td>
+                </tr>
+            {% else %}
+                <tr>
+                    <td colspan="3">No reminders found.</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
