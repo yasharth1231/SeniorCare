@@ -97,8 +97,12 @@ Hosted in /static/uploads/
 
 🏗️ Tech Stack
 Frontend- HTML, CSS, JavaScript, Bootstrap, Leaflet Maps
+
 Backend- Python Flask
 Database- MySQL
 Hosting- Local
+
+🚀Intefaces
+<img width="931" height="510" alt="interface" src="https://github.com/user-attachments/assets/b3796b32-34ce-44de-9473-c16bc1f3e76a" />
 
 APIs-Flask REST APIs
