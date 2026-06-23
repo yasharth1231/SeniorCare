@@ -103,6 +103,21 @@ Database- MySQL
 Hosting- Local
 
 🚀Intefaces
+
 <img width="931" height="510" alt="interface" src="https://github.com/user-attachments/assets/b3796b32-34ce-44de-9473-c16bc1f3e76a" />
+Senior Care Interface
+
+<img width="957" height="437" alt="image" src="https://github.com/user-attachments/assets/f85b7d82-7c98-46af-b86c-c156f629d2f4" />
+Senior User Dashboard
+
+<img width="944" height="428" alt="image" src="https://github.com/user-attachments/assets/8c384d3d-9501-490f-8052-5c65401e7e2b" />
+Caregiver Dashboard
+
+<img width="951" height="454" alt="image" src="https://github.com/user-attachments/assets/f1bf744e-998f-4874-9817-fdca9a3e14a5" />
+Family User Dashboard
+
+<img width="917" height="422" alt="image" src="https://github.com/user-attachments/assets/38e652bd-77fb-4f79-b336-965624a1940f" />
+Insights Page
+
 
 APIs-Flask REST APIs
